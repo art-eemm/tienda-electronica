@@ -101,9 +101,13 @@ export function ProductDialog({ product }: ProductDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Crear producto</DialogTitle>
+          <DialogTitle>
+            {product ? "Actualizar producto" : "Crear producto"}
+          </DialogTitle>
           <DialogDescription>
-            Añade un nuevo articulo al inventario
+            {product
+              ? "Edita los campos necesarios"
+              : "Añade un nuevo articulo al inventario"}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
