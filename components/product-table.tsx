@@ -1,4 +1,7 @@
-import Image from "next/image";
+"use client";
+
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -7,6 +10,19 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import { Button } from "./ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
+import { ProductDialog } from "./product-dialog";
 import { Product } from "@/types";
 
 interface ProductTableProps {
@@ -14,6 +30,21 @@ interface ProductTableProps {
 }
 
 export function ProductTable({ products }: ProductTableProps) {
+  const router = useRouter();
+
+  const deleteProduct = async (productId: number) => {
+    const { error } = await supabase
+      .from("products")
+      .update({ status: 0 })
+      .eq("id", productId);
+
+    if (error) {
+      console.log("Error al eliminar:", error.message);
+    } else {
+      router.refresh();
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -25,6 +56,7 @@ export function ProductTable({ products }: ProductTableProps) {
             <TableHead>Almacenamiento</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead className="text-right">Precio</TableHead>
+            <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -51,6 +83,36 @@ export function ProductTable({ products }: ProductTableProps) {
               <TableCell>{product.stock}</TableCell>
               <TableCell className="text-right">
                 ${product.price.toFixed(2)}
+              </TableCell>
+              <TableCell className="flex justify-end space-x-4">
+                <ProductDialog product={product} />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className="text-red-500 border-none "
+                    >
+                      Eliminar
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción marcara el articulo como inactivo y dejará
+                        de ser visible en la tienda
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteProduct(product.id)}
+                      >
+                        Continuar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))}

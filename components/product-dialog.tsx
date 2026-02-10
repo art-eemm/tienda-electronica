@@ -15,19 +15,24 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Product } from "@/types";
 
-export function ProductDialog() {
+interface ProductDialogProps {
+  product?: Product;
+}
+
+export function ProductDialog({ product }: ProductDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
-    brand: "",
-    price: "",
-    stock: "",
-    storage: "",
-    img_url: "",
+    name: product?.name || "",
+    brand: product?.brand || "",
+    price: product?.price.toString() || "",
+    stock: product?.stock.toString() || "",
+    storage: product?.storage.toString() || "",
+    img_url: product?.img_url || "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,16 +44,36 @@ export function ProductDialog() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("products").insert([
-        {
-          name: formData.name,
-          brand: formData.brand,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-          storage: parseInt(formData.storage),
-          img_url: formData.img_url,
-        },
-      ]);
+      let error;
+
+      if (product?.id) {
+        const result = await supabase
+          .from("products")
+          .update({
+            name: formData.name,
+            brand: formData.brand,
+            price: parseFloat(formData.price),
+            stock: parseInt(formData.stock),
+            storage: parseInt(formData.storage),
+            img_url: formData.img_url,
+          })
+          .eq("id", product.id);
+
+        error = result.error;
+      } else {
+        const result = await supabase.from("products").insert([
+          {
+            name: formData.name,
+            brand: formData.brand,
+            price: parseFloat(formData.price),
+            stock: parseInt(formData.stock),
+            storage: parseInt(formData.storage),
+            img_url: formData.img_url,
+          },
+        ]);
+
+        error = result.error;
+      }
 
       if (error) throw error;
 
@@ -72,7 +97,7 @@ export function ProductDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>+ Nuevo producto</Button>
+        <Button>{product ? "Actualizar" : "+ Nuevo producto"}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
