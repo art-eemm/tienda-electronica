@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { ProductTable } from "@/components/product-table";
+import { ProductDialog } from "@/components/product-dialog";
 
 export default async function DashboardPage() {
   const { data: products, error } = await supabase.from("products").select("*");
@@ -9,11 +10,13 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-      <p className="text-gray-600 mb-4">
-        Bienvenido al panel de administración de productos.
-      </p>
+    <div className="flex flex-col w-full p-6">
+      <div className="flex items-center mb-5">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div className="ml-auto">
+          <ProductDialog />
+        </div>
+      </div>
       <ProductTable products={products || []} />
     </div>
   );
