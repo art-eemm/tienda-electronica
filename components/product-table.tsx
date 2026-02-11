@@ -56,7 +56,7 @@ export function ProductTable({ products }: ProductTableProps) {
             <TableHead>Almacenamiento</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead className="text-right">Precio</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
+            <TableHead className="text-center">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
