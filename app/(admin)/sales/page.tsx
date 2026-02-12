@@ -1,12 +1,11 @@
 import { supabase } from "@/lib/supabase";
-import { ProductTable } from "@/components/product-table";
-import { ProductDialog } from "@/components/product-dialog";
+import { SalesTable } from "@/components/sales-table";
 
-export default async function DashboardPage() {
-  const { data: products, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("status", 1);
+export default async function SalesPage() {
+  const { data: sales, error } = await supabase
+    .from("sales")
+    .select(`*, products (name, brand, img_url), profiles (email)`)
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Error cargando productos:", error);
@@ -15,12 +14,9 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col w-full p-6">
       <div className="flex items-center mb-5">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <div className="ml-auto">
-          <ProductDialog />
-        </div>
+        <h1 className="text-3xl font-bold">Ventas</h1>
       </div>
-      <ProductTable products={products || []} />
+      <SalesTable sales={sales || []} />
     </div>
   );
 }
