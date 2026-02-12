@@ -5,6 +5,23 @@ export function proxy(request: NextRequest) {
   // ruta al que el usuario quiere ir
   const path = request.nextUrl.pathname;
 
+  if (path.startsWith("/api")) {
+    if (path.startsWith("/api/auth") || path === "/api/login") {
+      return NextResponse.next();
+    }
+
+    const authHeader = request.headers.get("Authorization");
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { success: false, message: "Falta el token de autorización" },
+        { status: 401 },
+      );
+    }
+
+    return NextResponse.next();
+  }
+
   // zonas exclusivas de admin
   const isProtectedRoute =
     path.startsWith("/products") || path.startsWith("/sales");
@@ -27,5 +44,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
