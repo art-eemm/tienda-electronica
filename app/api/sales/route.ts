@@ -3,8 +3,39 @@ import { supabase } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   try {
+    const authHeader = request.headers.get("Authorization");
+    const token = authHeader?.replace("Bearer ", "");
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "No autrizado. Sin token." },
+        { status: 401 },
+      );
+    }
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Token inválido o expirado" },
+        { status: 401 },
+      );
+    }
+
+    const realClientId = user.id;
+
     const body = await request.json();
-    const { product_id, quantity, client_id } = body;
+    const { product_id, quantity } = body;
+
+    if (!product_id || !quantity) {
+      return NextResponse.json(
+        { error: "Faltan datos de la compra" },
+        { status: 400 },
+      );
+    }
 
     const { data: product, error: productError } = await supabase
       .from("products")
@@ -28,7 +59,7 @@ export async function POST(request: Request) {
         product_id: product_id,
         quantity: quantity,
         total_price: total_price,
-        client_id: client_id,
+        client_id: realClientId,
       },
     ]);
 

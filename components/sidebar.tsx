@@ -35,7 +35,7 @@ export function Sidebar() {
 
         <Link
           href={"/sales"}
-          className={`px-4 py-3 rounded-md transition-colors flex items-center gap-3 ${pathname === "/ventas" ? "bg-blue-600" : "hover:bg-gray-800"}`}
+          className={`px-4 py-3 rounded-md transition-colors flex items-center gap-3 ${pathname === "/sales" ? "bg-blue-600" : "hover:bg-gray-800"}`}
         >
           Ventas
         </Link>
